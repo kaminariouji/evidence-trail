@@ -76,9 +76,10 @@ It shows the chain status, every record with its hash, the per-rule trace behind
 git clone <this repo>
 cd evidence-trail
 node --version        # 20 or newer
-npm test              # 20 tests, no network required
+npm test              # 26 tests, no network required
 npm run demo          # replay a recorded two-cycle demo into data/demo.jsonl
 npm run replay        # verify the chain and re-derive every decision
+npm run kol           # one Multi-KOL cycle over the fixture posts
 npm run serve         # dashboard on http://127.0.0.1:8099
 ```
 
@@ -121,6 +122,38 @@ if a single field was edited after the fact.
 
 
 
+## The bounty spotlight: a Multi-KOL narrative agent
+
+The bounty names a spotlight direction - watch up to 20 market voices, work out what they are saying about a
+token, detect when they converge, and open a practice position under user-defined risk limits. `src/kol.mjs`
+is that agent, built the same way as the price rules: every step is a named rule, and the same posts always
+produce the same signal and the same ledger head.
+
+| Step | Rule | Where |
+| --- | --- | --- |
+| What is being talked about | cashtags (`$SOL`) plus a configured token list, word-boundary matched | `parsePost` |
+| Direction | bull and bear lexicons; a tie scores 0 and can never open a position | `parsePost` |
+| Conviction | starts at 0.5, +0.2 per strong phrase (capped at two), -0.15 per excess bear word, then halved if the post hedges ("maybe", "not sure", "small") | `parsePost` |
+| Urgency | 0.25 per urgency phrase ("now", "today", "before"), capped at 1 | `parsePost` |
+| Convergence | distinct KOLs inside a 6h window, same token, same direction; score is the sum of conviction x (1 + urgency) | `convergence` |
+| Gate | at least 3 distinct voices **and** score >= 1.2; both are hard, and the count is not folded into the score | `convergence` |
+| Sizing | risk per trade is a fraction of equity, the stop sets the distance, the notional cap binds before risk does | `sizePosition` |
+
+```bash
+npm run kol
+```
+
+On the fixture (12 posts, 8 voices, 3 tokens) the cycle finds one signal: **SOL, 4 distinct voices, score 3.27**,
+a 300 USDC paper long capped by `maxNotionalUsd` even though 1% of 1,000 USDC at a 3% stop would allow 333.
+ARB is mentioned by one voice and is not traded; ETH is only talked about bearishly, and this agent does not
+short. Every post that fed the decision is stored with its sha256, so the signal can be re-derived from the
+posts alone - the same property `npm run replay` enforces on the price trail.
+
+**What is a fixture and what is not.** The posts are a dated fixture, not a live feed: a collector would change
+where posts come from, not what the rules do. No X, Discord or Telegram credentials are used anywhere in this
+repository, and no position is real - `mode` is paper, there is no order routing, no keys and no custody.
+
+
 ## What is real and what is not
 
 **Real:** the market data (Binance and Coinbase public endpoints), the arithmetic, the position sizing, the hash chain, the replay verification, the tests.
@@ -137,9 +170,11 @@ src/evidence.mjs  public data collection, provenance hashes, cross-venue check
 src/rules.mjs     the five rules, feature derivation, deterministic scoring, sizing
 src/agent.mjs     one cycle: observe -> decide -> size -> settle -> record
 src/replay.mjs    three-layer verification
+src/kol.mjs       Multi-KOL narrative agent: parse, convergence, sizing, recorded cycle
 src/server.mjs    dependency-free dashboard over the ledger
 scripts/          fixture builder (pulls real history into an offline fixture)
-test/             20 tests, including a full open-then-settle cycle
+test/             26 tests, including a full open-then-settle cycle
+scripts/kol-demo.mjs  one recorded Multi-KOL cycle over data/kol-demo.jsonl
 ```
 
 Zero runtime dependencies. Node 20+ standard library only.

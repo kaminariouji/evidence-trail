@@ -1,0 +1,26 @@
+Add the bounty spotlight direction: a Multi-KOL narrative agent
+
+The Autonomous Agents bounty names a spotlight project — watch a set of market
+voices, extract what they say about a token, detect convergence, open a practice
+position under user-defined risk limits. src/kol.mjs is that agent, built the same
+way as the price rules: named rules, no black box, same posts always produce the
+same signal and the same ledger head.
+
+- parsePost: cashtags + configured token list, bull/bear lexicons, conviction from
+  strong phrases and hedges, urgency from urgency phrases. A tie scores 0 and can
+  never open a position.
+- convergence: distinct KOLs inside a window, same token, same direction. The gate
+  is two hard conditions — at least three distinct voices AND score >= 1.2 — so one
+  loud voice cannot outvote three calm ones.
+- sizePosition: risk per trade is a fraction of equity, the stop sets the distance,
+  and the notional cap binds before risk does. It never raises risk to fill a cap.
+- runKolCycle: observation -> decision -> position, appended to the same
+  hash-chained ledger, with a sha256 of every post that fed the decision.
+
+The fixture (12 posts, 8 voices) yields one signal: SOL, 4 voices, score 3.27, a
+300 USDC paper long capped by maxNotionalUsd. ARB has one voice and is not traded;
+ETH is only bearish and this agent does not short.
+
+6 new tests (26 total), including determinism: two runs over the same posts must
+produce the same ledger head. The posts are a fixture, not a live feed, and no
+social credentials are used anywhere.

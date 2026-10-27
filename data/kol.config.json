@@ -1,0 +1,18 @@
+{
+  "tokens": [
+    "SOL",
+    "ARB",
+    "ETH",
+    "BTC"
+  ],
+  "windowHours": 6,
+  "minKols": 3,
+  "minScore": 1.2,
+  "risk": {
+    "equityUsd": 1000,
+    "riskFraction": 0.01,
+    "stopPct": 0.03,
+    "targetR": 2,
+    "maxNotionalUsd": 300
+  }
+}

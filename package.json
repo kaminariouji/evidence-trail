@@ -9,8 +9,11 @@
     "demo": "node scripts/demo.mjs",
     "replay": "node src/replay.mjs --ledger=data/demo.jsonl --fixture=fixtures/btc-2026-08-20.json --fixture=fixtures/btc-2026-08-27.json",
     "test": "node --test",
-    "serve": "node src/server.mjs"
+    "serve": "node src/server.mjs",
+    "kol": "node scripts/kol-demo.mjs"
   },
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20"
+  },
   "license": "MIT"
 }
