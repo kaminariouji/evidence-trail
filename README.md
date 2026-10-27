@@ -62,6 +62,14 @@ evidence 4   BTCUSDT  76f6012ade8e9514… rehash-match
 REPLAY OK — 2/2 decisions re-derived
 ```
 
+## Live trail
+
+The current demo ledger, rendered as a static page (no server, no build step):
+
+**https://kaminariouji.github.io/evidence-trail/**
+
+It shows the chain status, every record with its hash, the per-rule trace behind each decision, and the practice trades that were opened and settled. Regenerate it with `node scripts/build-static.mjs`.
+
 ## Quick start
 
 ```bash
