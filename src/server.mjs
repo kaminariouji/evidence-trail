@@ -8,7 +8,7 @@ const PORT = Number(process.env.PORT || 8099)
 
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]))
 
-function page(ledger, report) {
+export function page(ledger, report) {
   const decisions = ledger.ofType('decision')
   const opens = ledger.ofType('trade_open')
   const closes = ledger.ofType('trade_close')
