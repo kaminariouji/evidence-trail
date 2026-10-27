@@ -103,6 +103,24 @@ node src/agent.mjs --fixture fixtures/btc-2026-08-20.json --symbols BTCUSDT --le
 
 That is a **paper** result on a hand-picked historical window, and it is presented as a demonstration of the mechanism, not as evidence of an edge. The rule set is trend-following; it will lose money in a choppy market, and nothing here has been validated on out-of-sample data.
 
+## Fit with the Autonomous Agents bounty
+
+The bounty asks for agents that "interpret market evidence and record the practice trades they would make",
+where strong entries "show cause and effect and preserve a repeatable reasoning trail". This repository maps
+to that sentence one clause at a time:
+
+| Bounty clause | Where it lives |
+| --- | --- |
+| interpret market evidence | `src/evidence.mjs` pulls Binance klines, Binance USD-M funding and a Coinbase spot cross-check. Every observation stores `raw_sha256`, and `crossCheck` refuses to emit evidence when the two venues diverge by more than 1%. |
+| record the practice trades | `src/agent.mjs` runs observe -> features -> decide -> size -> settle, and appends an evidence record, a decision record and (when a signal fires) a trade record to the ledger. |
+| show cause and effect | Each decision record stores the signed weight and a one-line rationale from every rule that fired (`src/rules.mjs`), so the reader can see which inputs pushed the call and by how much. |
+| repeatable reasoning trail | `src/ledger.mjs` chains records by canonical-JSON sha256 with a `prev` pointer; `src/replay.mjs` re-derives the chain, re-runs the decision from the stored features and re-hashes the stored evidence, exiting non-zero on any mismatch. |
+
+`npm run replay` is the shortest demonstration: it recomputes the whole trail from bytes and fails loudly
+if a single field was edited after the fact.
+
+
+
 ## What is real and what is not
 
 **Real:** the market data (Binance and Coinbase public endpoints), the arithmetic, the position sizing, the hash chain, the replay verification, the tests.
