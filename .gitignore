@@ -1,0 +1,4 @@
+node_modules/
+data/trail.jsonl
+*.log
+.DS_Store

@@ -1,0 +1,16 @@
+{
+  "name": "evidence-trail",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "An agent that interprets market evidence, records practice trades, and keeps a hash-chained, replayable reasoning trail.",
+  "scripts": {
+    "start": "node src/agent.mjs",
+    "demo": "node scripts/demo.mjs",
+    "replay": "node src/replay.mjs --ledger=data/demo.jsonl --fixture=fixtures/btc-2026-08-20.json --fixture=fixtures/btc-2026-08-27.json",
+    "test": "node --test",
+    "serve": "node src/server.mjs"
+  },
+  "engines": { "node": ">=20" },
+  "license": "MIT"
+}
